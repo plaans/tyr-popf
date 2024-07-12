@@ -109,6 +109,11 @@ class PopfPlanner(TyrPDDLPlanner):
         retval: int,
         log_messages: Optional[List[LogMessage]] = None,
     ) -> PlanGenerationResultStatus:
+        for log in log_messages:
+            for line in log.message.splitlines():
+                if line.startswith(";; Problem unsolvable!"):
+                    return PlanGenerationResultStatus.UNSOLVABLE_PROVEN
+
         if plan is not None:
             splitted = str(plan).strip().split("\n")
             has_plan = len(splitted) > 1
@@ -117,7 +122,6 @@ class PopfPlanner(TyrPDDLPlanner):
 
         if has_plan:
             return PlanGenerationResultStatus.SOLVED_SATISFICING
-        print(retval)
         if retval == 0:
             return PlanGenerationResultStatus.UNSOLVABLE_INCOMPLETELY
         return PlanGenerationResultStatus.INTERNAL_ERROR
